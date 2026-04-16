@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beat Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090F;--sb:#0D0D1A;--card:#12121E;--border:#1A1A2E;
+  --blue:#4F8EF7;--purple:#8B5CF6;--green:#10B981;--orange:#F59E0B;--red:#EF4444;--teal:#06B6D4;
+  --text:#E0E0F0;--muted:#5A5A7A;--white:#fff;
+}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+/* HEADER */
+#hdr{display:flex;align-items:center;gap:16px;padding:0 20px;height:56px;background:var(--sb);border-bottom:1px solid var(--border);flex-shrink:0}
+#hdr .logo{font-size:18px;font-weight:700;color:var(--blue);white-space:nowrap}
+#hdr .xp-bar-wrap{flex:1;max-width:400px}
+#hdr .xp-label{font-size:11px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between}
+#hdr .xp-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+#hdr .xp-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;transition:width .4s}
+#hdr .level{background:var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--blue);white-space:nowrap}
+/* LAYOUT */
+#layout{display:flex;flex:1;overflow:hidden}
+/* SIDEBAR */
+#sb{width:260px;flex-shrink:0;background:var(--sb);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+#sb::-webkit-scrollbar{width:4px}
+#sb::-webkit-scrollbar-thumb{background:var(--border)}
+.sb-sect{padding:12px 12px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.mod-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;position:relative}
+.mod-item:hover:not(.locked){background:rgba(79,142,247,.07)}
+.mod-item.active{background:rgba(79,142,247,.12);border-left-color:var(--blue)}
+.mod-item.completed{border-left-color:var(--green)}
+.mod-item.locked{opacity:.4;cursor:default}
+.mod-icon{font-size:18px;flex-shrink:0}
+.mod-info{flex:1;min-width:0}
+.mod-title{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mod-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.mod-check{font-size:14px}
+/* PRODUCT TRACKER */
+#tracker{margin:16px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+#tracker h4{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.tr-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;color:var(--muted);transition:color .3s}
+.tr-item.done{color:var(--green)}
+.tr-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s}
+.tr-item.done .tr-dot{background:var(--green)}
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* TABS */
+#tabs{display:flex;padding:0 24px;border-bottom:1px solid var(--border);background:var(--sb);flex-shrink:0}
+.tab{padding:14px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab.locked-tab{opacity:.35;cursor:default}
+/* CONTENT */
+#content{flex:1;overflow-y:auto;padding:32px 40px}
+#content::-webkit-scrollbar{width:6px}
+#content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* LEARN */
+.mod-hero{margin-bottom:28px}
+.mod-hero .ch{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.mod-hero h1{font-size:28px;font-weight:800;color:var(--white);line-height:1.2;margin-bottom:8px}
+.mod-hero p{font-size:15px;color:var(--muted);line-height:1.6}
+.learn-body{max-width:760px}
+.learn-body h2{font-size:17px;font-weight:700;color:var(--blue);margin:28px 0 10px}
+.learn-body h3{font-size:14px;font-weight:700;color:var(--text);margin:18px 0 8px}
+.learn-body p{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:12px}
+.learn-body ul{margin:0 0 14px 0;padding-left:0;list-style:none}
+.learn-body ul li{font-size:14px;color:var(--text);line-height:1.6;padding:3px 0 3px 20px;position:relative}
+.learn-body ul li::before{content:"›";position:absolute;left:4px;color:var(--blue);font-weight:700}
+.callout{background:var(--card);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:14px 16px;margin:16px 0}
+.callout.green{border-left-color:var(--green)}
+.callout.orange{border-left-color:var(--orange)}
+.callout.purple{border-left-color:var(--purple)}
+.callout.red{border-left-color:var(--red)}
+.callout-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.callout.green .callout-label{color:var(--green)}
+.callout.orange .callout-label{color:var(--orange)}
+.callout.purple .callout-label{color:var(--purple)}
+.callout.red .callout-label{color:var(--red)}
+.callout-label{color:var(--blue)}
+.callout p{margin:0;font-size:13.5px;line-height:1.6}
+.flow{display:flex;align-items:center;gap:0;margin:16px 0;flex-wrap:wrap;gap:4px}
+.flow-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--white);text-align:center;min-width:90px}
+.flow-arrow{color:var(--muted);font-size:16px;padding:0 2px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.compare-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.compare-box.bad{border-top:2px solid var(--red)}
+.compare-box.good{border-top:2px solid var(--green)}
+.compare-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.compare-box.bad .compare-label{color:var(--red)}
+.compare-box.good .compare-label{color:var(--green)}
+.compare-box p{font-size:13px;color:var(--text);line-height:1.6;margin:0;font-style:italic}
+.table-grid{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.table-grid th{background:var(--card);color:var(--blue);font-weight:700;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.table-grid td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.table-grid tr:last-child td{border-bottom:none}
+.table-grid code{background:var(--border);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;color:var(--teal)}
+.vid-box{background:var(--card);border:1px solid #3A3000;border-radius:8px;padding:14px 16px;margin:20px 0;display:flex;align-items:flex-start;gap:12px}
+.vid-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.vid-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.vid-title{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:4px}
+.vid-search{font-size:12px;color:var(--muted)}
+.vid-search span{color:var(--orange);font-style:italic}
+/* DRILL */
+.drill-wrap{max-width:700px}
+.drill-title{font-size:22px;font-weight:700;color:var(--white);margin-bottom:8px}
+.drill-instr{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.drill-textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-size:14px;line-height:1.6;resize:vertical;min-height:120px;font-family:inherit;outline:none;transition:border .2s}
+.drill-textarea:focus{border-color:var(--blue)}
+.prompt-box{background:#0A0A1A;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;position:relative}
+.prompt-box pre{font-family:'Courier New',monospace;font-size:12.5px;color:#A0C0FF;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.prompt-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.checklist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.checklist-item:last-child{border-bottom:none}
+.checklist-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);flex-shrink:0;cursor:pointer;margin-top:1px}
+.checklist-item label{font-size:13.5px;color:var(--text);cursor:pointer;line-height:1.5}
+.checklist-item.done label{color:var(--green)}
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#3A7AE8;transform:translateY(-1px)}
+.btn-ghost{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#0CA571}
+.btn-copy{background:#1A1A3A;border:1px solid var(--blue);color:var(--blue);padding:8px 16px;font-size:12px}
+.btn-copy:hover{background:var(--blue);color:#fff}
+.btn-copy.copied{background:var(--green);border-color:var(--green);color:#fff}
+.drill-confirm{display:flex;align-items:center;gap:10px;margin:12px 0 20px;padding:14px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.drill-confirm input{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
+.drill-confirm label{font-size:13px;color:var(--muted);cursor:pointer}
+/* QUIZ */
+.quiz-wrap{max-width:680px}
+.quiz-progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.quiz-progress-text{font-size:13px;color:var(--muted)}
+.quiz-dots{display:flex;gap:6px}
+.quiz-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.quiz-dot.answered{background:var(--blue)}
+.quiz-dot.correct{background:var(--green)}
+.quiz-dot.wrong{background:var(--red)}
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.q-text{font-size:16px;font-weight:600;color:var(--white);margin-bottom:20px;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:10px}
+.q-opt{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px 16px;font-size:14px;color:var(--text);cursor:pointer;transition:all .15s;text-align:left}
+.q-opt:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.q-opt.correct{border-color:var(--green);background:rgba(16,185,129,.1);color:var(--green)}
+.q-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red)}
+.q-opt:disabled{cursor:default}
+.q-explanation{margin-top:14px;padding:12px 14px;background:rgba(79,142,247,.08);border-radius:8px;font-size:13px;color:var(--muted);line-height:1.6}
+.quiz-result{background:var(--card);border-radius:12px;padding:32px;text-align:center;margin-top:20px}
+.quiz-result h2{font-size:24px;font-weight:800;margin-bottom:8px}
+.quiz-result.pass h2{color:var(--green)}
+.quiz-result.fail h2{color:var(--orange)}
+.quiz-result p{font-size:14px;color:var(--muted);margin-bottom:20px}
+.score-big{font-size:48px;font-weight:900;line-height:1;margin:12px 0}
+.quiz-result.pass .score-big{color:var(--green)}
+.quiz-result.fail .score-big{color:var(--orange)}
+/* MISC */
+.row-btns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.xp-badge{display:inline-block;background:rgba(139,92,246,.15);border:1px solid var(--purple);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--purple)}
+.complete-banner{background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(79,142,247,.1));border:1px solid var(--green);border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.complete-banner .icon{font-size:32px}
+.complete-banner h3{font-size:16px;font-weight:700;color:var(--green);margin-bottom:4px}
+.complete-banner p{font-size:13px;color:var(--muted);margin:0}
+.locked-msg{text-align:center;padding:60px 20px;color:var(--muted)}
+.locked-msg .lock{font-size:48px;margin-bottom:16px}
+.locked-msg p{font-size:15px}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div class="logo">🎵 Beat Academy</div>
+  <div class="xp-bar-wrap">
+    <div class="xp-label"><span id="lv-label">Level 1 — Beginner</span><span id="xp-label">0 / 200 XP</span></div>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+  </div>
+  <div class="level" id="lv-badge">Lvl 1</div>
+</div>
+<div id="layout">
+  <aside id="sb"></aside>
+  <div id="main">
+    <div id="tabs"></div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const LS = 'beatacademy_v1';
+let S = load();
+function load(){
+  try{ return JSON.parse(localStorage.getItem(LS)) || def(); }catch(e){ return def(); }
+}
+function def(){
+  return { mod:1, tab:'learn', completed:[], xp:0, drillDone:{}, drillText:{}, quizPassed:{},
+           quizState:{ q:0, answers:[], done:false } };
+}
+function save(){ localStorage.setItem(LS, JSON.stringify(S)); }
+
+// ─── XP / LEVEL ───────────────────────────────────────────────────────────────
+const LEVELS=[
+  {min:0,   max:200,  label:'Beginner',      badge:'Lvl 1'},
+  {min:200, max:500,  label:'Apprentice',    badge:'Lvl 2'},
+  {min:500, max:900,  label:'Builder',       badge:'Lvl 3'},
+  {min:900, max:1400, label:'Creator',       badge:'Lvl 4'},
+  {min:1400,max:2050, label:'Producer',      badge:'Lvl 5'},
+  {min:2050,max:9999, label:'Beat Architect',badge:'Lvl 6'},
+];
+function lv(xp){ return LEVELS.find(l=>xp<l.max)||LEVELS[5]; }
+
+// ─── MODULE DATA ──────────────────────────────────────────────────────────────
+const MODULES = [
+
+{id:1,icon:'🎵',title:'Welcome to Beat Academy',sub:'What you will build and how this works',xp:50,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 1</div>
+  <h1>Welcome to Beat Academy</h1>
+  <p>By the end of this course you will have built a real, working desktop tool that generates original music beats from hit songs. No coding background needed. Let's go.</p>
+</div>
+<div class="learn-body">
+<h2>What You Are Building</h2>
+<p>Your friend's vision: a desktop app that picks from a database of successful songs, analyzes what makes their melodies and drum patterns work, and generates new MIDI files you can load into any music software.</p>
+<div class="callout purple">
+  <div class="callout-label">The Final Product</div>
+  <p><strong>Beat Generator</strong> — a Python desktop app with three panels: a song browser, a pattern analyzer, and a MIDI generator. Pick a song → analyze its groove → generate a new beat → export MIDI.</p>
+</div>
+<h2>How This Platform Works</h2>
+<div class="flow">
+  <div class="flow-box" style="border-top:2px solid var(--blue)">📖 Learn</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--purple)">🛠 Drill</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--green)">✅ Quiz</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--orange)">🔓 Unlock</div>
+</div>
+<p>Each module has three tabs. <strong>Learn</strong> gives you the concept. <strong>Drill</strong> gives you a hands-on exercise (often a ready-made Claude prompt to copy and use). <strong>Quiz</strong> tests you — pass it to unlock the next module and earn XP.</p>
+<h2>What is Vibe Coding?</h2>
+<p>Vibe coding means using AI to build real things by describing what you want clearly and refining until it is right. You are not learning to write code line by line. You are learning to <strong>direct</strong> an AI that writes the code for you.</p>
+<div class="callout">
+  <div class="callout-label">The Director Analogy</div>
+  <p>A film director does not operate the camera or edit the footage. They have a clear vision and communicate it to skilled people who execute it. You are the director. Claude is your entire production crew.</p>
+</div>
+<h2>Your Product Tracker</h2>
+<p>Watch the sidebar — as you complete modules, your product gets built piece by piece. By Module 12 you will have a working beat generator.</p>
+</div>`,
+video:{title:'Getting started with Claude AI',search:'Claude AI beginners getting started tutorial 2024'},
+drill:{type:'text',title:'Your First Step',
+  instr:'In one or two sentences, describe what you want your music tool to do. Be as specific as you can about what goes in and what comes out.',
+  placeholder:'My tool will analyze drum patterns from chart-topping hip hop songs and generate new MIDI grooves that I can load into Ableton...'},
+quiz:[
+  {q:'What is "vibe coding"?',opts:['Learning to write code from scratch','Using AI to build real things by describing what you want and iterating','A type of music production style','A programming language for music apps'],a:1,ex:'Vibe coding is about directing AI — you describe the vision clearly, the AI executes, and you refine until it is right. No manual coding required.'},
+  {q:'What will you produce by the end of this course?',opts:['A Spotify playlist','A mobile app','A working desktop tool that generates MIDI beats from song analysis','A music theory textbook'],a:2,ex:'The capstone is Beat Generator — a Python desktop app that analyzes melodies and drum grooves from a song database and exports MIDI files.'},
+  {q:'How do you unlock the next module?',opts:['Pay for a premium plan','Pass the quiz with enough correct answers','Watch an external video','Email your teacher'],a:1,ex:'Each module unlocks when you pass its quiz. You need at least 2 out of 3 correct (or 3 out of 4 on longer quizzes).'},
+],pass:2},
+
+{id:2,icon:'🎬',title:'AI Is Your Production Crew',sub:'The director mindset and iteration loop',xp:100,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 2</div>
+  <h1>AI Is Your Production Crew</h1>
+  <p>The most important mindset shift you need before touching any tool.</p>
+</div>
+<div class="learn-body">
+<h2>You Are the Director</h2>
+<p>A director does not write the script, operate the camera, or edit the footage. They hold the vision and communicate it with enough clarity that skilled people can execute. The moment you start thinking of Claude as a search engine that writes text, your results become average. The moment you think of it as a crew waiting for direction, your results become exceptional.</p>
+<h2>What Claude Can Do</h2>
+<ul>
+  <li>Write, edit, and debug code in any language</li>
+  <li>Read your files and make precise surgical changes</li>
+  <li>Design a product architecture and explain trade-offs</li>
+  <li>Write pitch decks, emails, legal summaries, product specs</li>
+  <li>Analyze a problem and suggest approaches you have not thought of</li>
+</ul>
+<h2>What Claude Cannot Do</h2>
+<ul>
+  <li>Remember anything between separate conversations (by default)</li>
+  <li>Access the internet or real-time data on its own</li>
+  <li>Make strategic decisions for you — it executes your vision, not its own</li>
+  <li>Guarantee factual accuracy on real-world claims — always verify facts</li>
+</ul>
+<div class="callout orange">
+  <div class="callout-label">Critical Rule</div>
+  <p>Never ask Claude what you should do strategically. Have your own view first. Then ask Claude to stress-test it, express it better, or find flaws in it. AI amplifies your thinking — it does not replace it.</p>
+</div>
+<h2>The Iteration Loop</h2>
+<p>Nobody gets the perfect output on the first prompt. The real skill is not writing one perfect prompt — it is looking at output, identifying exactly what is wrong, and writing a precise correction.</p>
+<div class="flow">
+  <div class="flow-box">Write prompt</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Read output carefully</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Identify what is wrong</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Send correction</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Repeat</div>
+</div>
+<div class="callout green">
+  <div class="callout-label">Real Example</div>
+  <p>The Huntwise CV optimization prompt took 17 rules across many iterations. Each rule exists because a specific test failed. Gilad's score dropped from 85% to 72% after over-optimization — that failure created Rule 14 (handle technical vs non-technical CVs differently). Failures are the curriculum.</p>
+</div>
+<h2>How Many Rounds is Normal?</h2>
+<p>For your first small project: 5-8 rounds. For a real deliverable: 10-20 rounds. If you accepted the first output and moved on, you left most of the quality on the table.</p>
+</div>`,
+video:{title:'How to think about AI collaboration',search:'how to use Claude AI effectively prompting mindset 2024'},
+drill:{type:'copy-prompt',title:'Your First Real Conversation',
+  instr:'Copy this prompt and paste it into claude.ai. Have the conversation. Come back when done.',
+  prompt:`I want to build a desktop music tool. Here is my vision:
+
+The tool analyzes hit songs from a database, extracts the most effective melody patterns and drum grooves, and generates new MIDI files that combine those elements.
+
+I have never coded before. I am going to learn by using AI to build this step by step.
+
+For this conversation, I want you to:
+1. Ask me 5 questions to sharpen the product vision
+2. After I answer, summarize the product in one paragraph
+3. Identify the 3 biggest technical challenges we will need to solve
+
+Start with the questions.`},
+quiz:[
+  {q:'In the director analogy, what is Claude?',opts:['The director','The film studio executive','Your entire production crew — it executes your vision','The audience'],a:2,ex:'You are the director. Claude is the crew. Your job is a clear vision and clear communication. Claude\'s job is execution.'},
+  {q:'When you get bad output from Claude, what should you do?',opts:['Switch to a different AI tool','Identify specifically what is wrong and send a precise correction','Delete everything and start over','Accept it and move on'],a:1,ex:'Bad output is almost always caused by unclear instructions. Identify the specific problem, write a targeted correction. Do not rebuild from scratch unless the whole direction is wrong.'},
+  {q:'How many rounds of iteration is normal for a real deliverable?',opts:['1 — if you write a good enough prompt','2-3','5-15 or more','50+'],a:2,ex:'5-15 rounds is completely normal. Professional outputs built this way go through 20-30 rounds. Each round is fast — the total time is still less than starting over.'},
+],pass:2},
+
+{id:3,icon:'💬',title:'Claude.ai — Your First Conversation',sub:'Account setup, interface, and what to know',xp:100,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 3</div>
+  <h1>Claude.ai — Your First Conversation</h1>
+  <p>No installation needed. Open your browser and you are ready to start.</p>
+</div>
+<div class="learn-body">
+<h2>Creating Your Account (2 minutes)</h2>
+<ul>
+  <li>Open any browser (Chrome, Safari, Firefox)</li>
+  <li>Go to <strong>claude.ai</strong></li>
+  <li>Click Sign Up → enter your email → verify → done</li>
+  <li>The free plan is enough to start. No payment needed today.</li>
+</ul>
+<h2>The Interface</h2>
+<table class="table-grid">
+  <tr><th>Part</th><th>What it is</th></tr>
+  <tr><td>Left sidebar</td><td>Your conversation history. Every chat is saved. Click any to return to it.</td></tr>
+  <tr><td>Main area</td><td>The conversation. Your messages on the right, Claude's on the left.</td></tr>
+  <tr><td>Text box (bottom)</td><td>Where you type. Press Enter to send. Shift+Enter for a new line without sending.</td></tr>
+</table>
+<h2>What MIDI Actually Is</h2>
+<p>Since you will be building a MIDI tool, you need to understand what MIDI is before writing a single line about it. Read this carefully — it is the foundation of your whole product.</p>
+<div class="callout purple">
+  <div class="callout-label">MIDI Explained Simply</div>
+  <p><strong>MIDI is not audio.</strong> It contains no sound. A MIDI file is a list of instructions: "Play note 60 (middle C) at time 0.0, for 0.5 seconds, at volume 80. Then play note 64 at time 0.5..." Your music software (Ableton, GarageBand, FL Studio) reads these instructions and plays them with whatever instrument sounds you choose.</p>
+</div>
+<p>This is why MIDI is perfect for what you are building: you can analyze the instructions (notes, timing, rhythm) without dealing with audio files, and you can generate new instructions without needing to record or synthesize anything.</p>
+<h2>The Context Problem</h2>
+<div class="callout orange">
+  <div class="callout-label">Important</div>
+  <p>Claude does NOT remember across conversations. Each new conversation tab starts completely fresh. If you close a tab and open a new one, Claude has no idea who you are. This is why Module 10 (Memory) matters — it teaches you to solve this. For now: keep important sessions open, or start each one by pasting your project context.</p>
+</div>
+</div>`,
+video:{title:'Claude.ai walkthrough for beginners',search:'Claude AI tutorial interface walkthrough beginners 2024'},
+drill:{type:'copy-prompt',title:'Understanding MIDI',
+  instr:'Copy this prompt, paste it into claude.ai, and read the whole response. Understanding MIDI is the foundation of your product.',
+  prompt:`Explain MIDI to me as if I have never used music software before. I need to understand:
+
+1. What a MIDI file actually contains (what data is stored, what is NOT stored)
+2. How a melody is represented — specifically what "pitch", "duration", and "velocity" mean
+3. How drum patterns work in MIDI — why drums are on a special channel
+4. What "middle C" is and why MIDI uses numbers 0-127 for notes
+5. What a "MIDI track" is vs a "MIDI channel"
+
+Use simple analogies throughout. After explaining, give me a concrete example: what would the first 4 notes of "Happy Birthday" look like as MIDI data?`},
+quiz:[
+  {q:'Does Claude remember your previous conversations when you open a new chat?',opts:['Yes, always','Only if you pay for Pro','No — each new conversation starts completely fresh','Only for 24 hours'],a:2,ex:'Each conversation is independent. Claude has no memory of past sessions unless you paste context into the new conversation. This is why building a context system matters.'},
+  {q:'What does a MIDI file contain?',opts:['Recorded audio (like an MP3)','Sheet music as an image','Instructions for notes — pitch, timing, duration, velocity — but no actual sound','Compressed audio with metadata'],a:2,ex:'MIDI is instructions, not audio. It tells your music software what notes to play, when, for how long, and at what volume. The actual sounds come from your software\'s instruments.'},
+  {q:'On which MIDI channel are drums always found?',opts:['Channel 1','Channel 5','Channel 10','Channel 16'],a:2,ex:'Channel 10 is the universal MIDI standard for drums. Every MIDI file on earth puts drums on channel 10. This is how your analyzer will find the drum track without guessing.'},
+],pass:2},
+
+{id:4,icon:'✍️',title:'The Art of the Prompt',sub:'The one skill that determines everything',xp:150,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 4</div>
+  <h1>The Art of the Prompt</h1>
+  <p>Prompt quality determines output quality. This is the skill that separates someone who gets mediocre results from someone who builds real products.</p>
+</div>
+<div class="learn-body">
+<h2>The Core Rule</h2>
+<div class="callout">
+  <div class="callout-label">Principle</div>
+  <p>Vague instructions produce vague results. Specific instructions produce specific results. When output is wrong, the cause is almost always that the prompt did not give Claude enough to go on.</p>
+</div>
+<h2>The 5 Parts of a Strong Prompt</h2>
+<table class="table-grid">
+  <tr><th>Part</th><th>What it does</th><th>Example</th></tr>
+  <tr><td><strong>ROLE</strong></td><td>Who should Claude be?</td><td>"You are a Python developer specializing in music analysis tools."</td></tr>
+  <tr><td><strong>CONTEXT</strong></td><td>What is the situation?</td><td>"I am building a desktop app that reads MIDI files and extracts melody patterns."</td></tr>
+  <tr><td><strong>TASK</strong></td><td>What exactly do you need?</td><td>"Write a function that takes a MIDI file path and returns the top 3 melody motifs."</td></tr>
+  <tr><td><strong>CONSTRAINTS</strong></td><td>What rules must it follow?</td><td>"Use music21. Add a comment above every function. No external APIs."</td></tr>
+  <tr><td><strong>FORMAT</strong></td><td>How should output look?</td><td>"Return as a single .py file with a main() demo function at the bottom."</td></tr>
+</table>
+<h2>Side by Side: Weak vs Strong</h2>
+<div class="compare">
+  <div class="compare-box bad">
+    <div class="compare-label">Weak prompt</div>
+    <p>"Write me a Python function to analyze music."</p>
+  </div>
+  <div class="compare-box good">
+    <div class="compare-label">Strong prompt</div>
+    <p>"You are a Python developer. I have a MIDI file. Write a function called extract_melody(midi_path) using music21 that finds the track with the most notes and returns them as a list of dicts: {pitch: int, duration: float, start: float}. Add a docstring. Show a usage example."</p>
+  </div>
+</div>
+<div class="compare">
+  <div class="compare-box bad">
+    <div class="compare-label">Weak prompt</div>
+    <p>"Make the drum generator better."</p>
+  </div>
+  <div class="compare-box good">
+    <div class="compare-label">Strong prompt</div>
+    <p>"In drum_analyzer.py, the generate_drum_pattern function currently ignores velocity. Update it to vary velocity by ±15% randomly for each hit. Keep everything else identical."</p>
+  </div>
+</div>
+<h2>Three Patterns Worth Memorizing</h2>
+<h3>1. The Constraint List</h3>
+<p>List your firm rules explicitly at the top, not buried in a paragraph. "Rules: no external APIs, use music21, add comments to every function, Python 3.10+."</p>
+<h3>2. The Negative Constraint</h3>
+<p>Tell Claude what NOT to do. "Do not refactor other functions. Do not add new imports. Only change the generate_drum_pattern function." This prevents Claude from helpfully breaking things you did not ask it to touch.</p>
+<h3>3. The Format Anchor</h3>
+<p>Always end with exact output format. "Return as a single .py file." or "Return only the updated function, nothing else." Explicit format instructions are respected consistently.</p>
+</div>`,
+video:{title:'Prompt engineering for Claude',search:'Claude prompt engineering guide beginners 2024 Anthropic'},
+drill:{type:'text',title:'Fix This Prompt',
+  instr:'Here is a weak prompt: "Help me with my music tool database." Rewrite it as a strong prompt using all 5 parts (ROLE, CONTEXT, TASK, CONSTRAINTS, FORMAT). Use your actual product idea.',
+  placeholder:'You are a Python developer specializing in data management...\n\nContext: I am building...\n\nTask: ...\n\nConstraints: ...\n\nFormat: ...'},
+quiz:[
+  {q:'Which of these is a STRONG prompt?',opts:['"Make my beat generator better"','"Write something about music databases"','"You are a Python developer. In song_database.py, add a filter_by_bpm(min, max) function that reads song_database.csv and returns only rows where BPM is between min and max. Return only the new function."','"Help with Python"'],a:2,ex:'The strong prompt has role (Python developer), task (specific function), constraints (filter logic), format (return only the new function). All five parts are there or implied.'},
+  {q:'What does the CONSTRAINTS part of a prompt control?',opts:['Who Claude should pretend to be','What the output format should look like','The rules Claude must follow — what NOT to do and what limits apply','The general subject area of the task'],a:2,ex:'Constraints prevent Claude from making changes you did not ask for, adding dependencies you do not want, or using approaches that do not fit your project.'},
+  {q:'Why use "negative constraints" (telling Claude what NOT to do)?',opts:['To make prompts longer','To prevent Claude from helpfully changing things you did not ask it to touch','To slow down the response','Negative constraints do not work'],a:1,ex:'Claude often tries to be helpful by improving surrounding code. A negative constraint like "do not change any other function" prevents it from breaking things while fixing the one thing you asked about.'},
+  {q:'True or false: a longer prompt always produces better output.',opts:['True — more detail always helps','False — a specific, focused prompt produces better output than a long vague one'],a:1,ex:'Length does not equal quality. A 10-word specific prompt beats a 200-word vague one. Every sentence in a prompt should earn its place.'},
+],pass:3},
+
+{id:5,icon:'🖥️',title:'Installing Your Tools',sub:'VS Code, Node.js, and Claude Code step by step',xp:150,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 5</div>
+  <h1>Installing Your Tools</h1>
+  <p>Three tools. 20-30 minutes. After this chapter you can build real things on your computer.</p>
+</div>
+<div class="learn-body">
+<h2>The Mental Model</h2>
+<div class="callout purple">
+  <div class="callout-label">Think of it like this</div>
+  <p><strong>VS Code</strong> = your workshop (where your project files live and you can see them). <strong>Claude Code</strong> = your AI collaborator who sits in the workshop with you and can read, write, and run files. <strong>Node.js</strong> = the engine under the hood that Claude Code needs to run (you never touch it directly).</p>
+</div>
+<h2>Tool 1: VS Code</h2>
+<p>VS Code is a free code editor made by Microsoft. It is what you will open every time you work on your project. Files on the left, Claude on the right.</p>
+<ul>
+  <li>Go to <strong>code.visualstudio.com</strong></li>
+  <li>Click the big blue Download button (it auto-detects Mac or Windows)</li>
+  <li>Open the downloaded file → drag to Applications (Mac) or run installer (Windows)</li>
+  <li>Open VS Code → click Extensions icon (four squares on left sidebar)</li>
+  <li>Search "Claude Code" → Install the result from Anthropic</li>
+</ul>
+<h2>Tool 2: Node.js</h2>
+<p>Node.js runs in the background. You install it once and never think about it again.</p>
+<ul>
+  <li>Go to <strong>nodejs.org</strong></li>
+  <li>Click the <strong>LTS</strong> version (Long Term Support = stable). Do not click "Current".</li>
+  <li>Run the installer, click through all the steps</li>
+  <li>To verify: open Terminal (Mac: Cmd+Space → type Terminal) or Command Prompt (Windows: Windows key → type cmd), then type: <code>node --version</code> and press Enter. You should see a version number like v20.11.0.</li>
+</ul>
+<h2>Tool 3: Claude Code</h2>
+<p>With Node.js installed, Claude Code is one command away.</p>
+<ul>
+  <li>Open Terminal (Mac) or Command Prompt (Windows)</li>
+  <li>Type exactly: <code>npm install -g @anthropic-ai/claude-code</code> and press Enter</li>
+  <li>Wait for it to finish (lots of text will scroll — that is normal)</li>
+  <li>Type <code>claude</code> and press Enter → it will open your browser to log in</li>
+  <li>Log in with your Anthropic account (same as claude.ai)</li>
+  <li>Type <code>/exit</code> to close Claude Code for now</li>
+</ul>
+<div class="callout orange">
+  <div class="callout-label">Got an error?</div>
+  <p>Copy the exact error text, open claude.ai, and paste it with: "I am trying to install Claude Code on Mac/Windows and got this error. What does it mean and how do I fix it?" Claude will walk you through it step by step.</p>
+</div>
+<h2>How to Start a Session (Every Time)</h2>
+<div class="flow">
+  <div class="flow-box">Open VS Code</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Open project folder</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Terminal → type: claude</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Build things</div>
+</div>
+</div>`,
+video:{title:'Installing VS Code and Node.js for beginners',search:'VS Code install setup beginners 2024 Mac Windows tutorial'},
+drill:{type:'checklist',title:'Installation Checklist',
+  instr:'Work through each step. Check it off when done. Do not move to the next until the current one is complete.',
+  items:[
+    {id:'vscode',label:'Downloaded and installed VS Code from code.visualstudio.com'},
+    {id:'ext',label:'Installed the Claude Code extension in VS Code (search "Claude Code" in Extensions)'},
+    {id:'node',label:'Downloaded and installed Node.js LTS from nodejs.org'},
+    {id:'nodecheck',label:'Verified Node.js: opened Terminal, typed "node --version", saw a version number'},
+    {id:'ccinstall',label:'Ran: npm install -g @anthropic-ai/claude-code in Terminal'},
+    {id:'cclogin',label:'Typed "claude" in Terminal and logged in with my Anthropic account'},
+    {id:'cctest',label:'Claude Code started successfully. Typed /exit to close it.'},
+  ]},
+quiz:[
+  {q:'What command do you type in the terminal to start Claude Code?',opts:['start-claude','open ai','claude','run claude-code'],a:2,ex:'Just type "claude" and press Enter. Make sure you are inside your project folder first (using cd) so Claude Code can see your files.'},
+  {q:'What is VS Code?',opts:['A website you visit','A type of MIDI file','A free code editor where you see and manage your project files','A Python library for music'],a:2,ex:'VS Code is your workshop — the app where all your files live and where you work. Claude Code runs inside VS Code\'s terminal panel.'},
+  {q:'Why do you need Node.js?',opts:['To play MIDI files','To access Spotify','Claude Code requires it to be installed on your computer to run','To open HTML files in the browser'],a:2,ex:'Node.js is the runtime engine that Claude Code is built on. You install it once and never touch it again — it just needs to exist.'},
+],pass:2},
+
+{id:6,icon:'🌐',title:'Your First HTML Project',sub:'Build the Beat Generator landing page',xp:150,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 6</div>
+  <h1>Your First HTML Project</h1>
+  <p>HTML is the perfect format to start with. You see results instantly in any browser, and Claude writes it extremely well.</p>
+</div>
+<div class="learn-body">
+<h2>What is HTML?</h2>
+<p>HTML is the language every webpage is written in. Every website you have ever visited is built on HTML. You do not need to learn it — Claude writes it. You just need to know that an HTML file opens in your browser like a webpage, and you can refresh it to see changes instantly.</p>
+<h2>Why Start Here</h2>
+<ul>
+  <li>Open it in any browser — no installation, no setup, instant feedback</li>
+  <li>Claude edits HTML files surgically and accurately</li>
+  <li>You can put it on the internet for free later (GitHub Pages)</li>
+  <li>The Sentriq investor decks, data rooms, and product demo are all HTML files</li>
+</ul>
+<h2>The Drill: Build Your Music Tool Landing Page</h2>
+<p>In the Drill tab, you will find a ready-made Claude Code prompt that builds a professional landing page for your Beat Generator. Here is what the workflow looks like:</p>
+<div class="flow">
+  <div class="flow-box">Create project folder on Desktop</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Open in VS Code</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Terminal → claude</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Paste the drill prompt</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Open HTML in browser</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Iterate 8-10 times</div>
+</div>
+<div class="callout green">
+  <div class="callout-label">Surgical Editing</div>
+  <p>Once Claude builds the first version, do not ask it to rebuild from scratch when something is wrong. Instead: "The headline is too generic — rewrite it to mention melody pattern analysis specifically. Keep everything else exactly as it is." Target one thing at a time. This is the single most important workflow habit to develop.</p>
+</div>
+<h2>How to Set Up the Project Folder</h2>
+<ul>
+  <li>Create a folder on your Desktop called <strong>beat-generator</strong></li>
+  <li>Open VS Code → File → Open Folder → select beat-generator</li>
+  <li>In VS Code: Terminal → New Terminal</li>
+  <li>Type <code>claude</code> and press Enter</li>
+  <li>Paste the drill prompt below and press Enter</li>
+</ul>
+</div>`,
+video:{title:'Building with Claude Code — first project walkthrough',search:'Claude Code build first project HTML beginners step by step 2024'},
+drill:{type:'copy-prompt',title:'Build Your Landing Page',
+  instr:'1. Create a folder called "beat-generator" on your Desktop. 2. Open it in VS Code. 3. Open Terminal → New Terminal. 4. Type "claude" and press Enter. 5. Copy and paste this prompt:',
+  prompt:`You are a professional web designer. Build me a single-page HTML landing page for my music product.
+
+Product: Beat Generator — a desktop app that analyzes the melody patterns and drum grooves of hit songs from a music database, then generates new MIDI files I can load into Ableton, GarageBand, or FL Studio.
+
+The page needs:
+- A dark hero section with a bold headline and one-sentence description
+- A "How It Works" section with 3 steps: 1) Pick songs from the database 2) Analyze melody + drum patterns 3) Export your generated MIDI
+- A features section with 3 cards: Melody Pattern Analysis, Drum Groove Generator, One-Click MIDI Export
+- A simple email waitlist form (just the input and a button — no backend needed)
+
+Style: Dark background (#0A0A0F), electric blue (#4F8EF7) and purple (#8B5CF6) accents, white text. Music production aesthetic. Premium feel.
+
+Return as a single index.html file with all CSS embedded in a <style> block.`},
+quiz:[
+  {q:'What is an HTML file?',opts:['A Python script','A MIDI file','A webpage file that opens in any browser with no installation','A type of database format'],a:2,ex:'HTML files are plain text files that any browser (Chrome, Safari, Firefox) can render as a webpage. You double-click them to open, and refresh to see changes after Claude edits them.'},
+  {q:'What is a "surgical edit"?',opts:['Deleting the file and rebuilding from scratch','Using a special code editing tool','Changing only one specific thing while leaving the rest exactly as it is','Adding more features to the whole file'],a:2,ex:'Surgical edits are the core workflow habit. "Fix only the headline — leave everything else." This prevents Claude from accidentally breaking things while fixing something unrelated.'},
+  {q:'After Claude edits your HTML file in Claude Code, how do you see the changes?',opts:['Restart your computer','Re-run "claude" in the terminal','Refresh the HTML file in your browser (press F5 or Cmd+R)','Type "render" in Claude Code'],a:2,ex:'HTML files are just files. You open them in your browser once, and then press refresh (Cmd+R on Mac, F5 on Windows) after every Claude edit to see the updated version.'},
+],pass:2},
+
+{id:7,icon:'🎹',title:'Your Music Product — Defined',sub:'MIDI, music21, and your product architecture',xp:200,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 7</div>
+  <h1>Your Music Product — Defined</h1>
+  <p>Before writing a single line of code, you need to understand exactly what you are building and what tools will build it.</p>
+</div>
+<div class="learn-body">
+<h2>The Full Product Architecture</h2>
+<div class="flow" style="flex-wrap:wrap;gap:8px">
+  <div class="flow-box" style="border-top:2px solid var(--blue)">Song Database<br><small style="color:var(--muted);font-weight:400">CSV + MIDI files</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--purple)">Melody Analyzer<br><small style="color:var(--muted);font-weight:400">music21</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--orange)">Drum Analyzer<br><small style="color:var(--muted);font-weight:400">music21</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--green)">MIDI Generator<br><small style="color:var(--muted);font-weight:400">midiutil</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box" style="border-top:2px solid var(--teal)">Desktop GUI<br><small style="color:var(--muted);font-weight:400">Tkinter</small></div>
+</div>
+<h2>The Python Libraries</h2>
+<table class="table-grid">
+  <tr><th>Library</th><th>What it does</th><th>How to get it</th></tr>
+  <tr><td><code>music21</code></td><td>Reads MIDI files and gives you Note objects with pitch, duration, and timing — like a human reading sheet music</td><td><code>pip install music21</code></td></tr>
+  <tr><td><code>midiutil</code></td><td>Creates new MIDI files from scratch by writing note events programmatically</td><td><code>pip install midiutil</code></td></tr>
+  <tr><td><code>tkinter</code></td><td>Builds desktop windows, buttons, and panels — Python's built-in GUI toolkit</td><td>Comes with Python, no install needed</td></tr>
+  <tr><td><code>pandas</code></td><td>Reads and filters CSV files (your song database)</td><td><code>pip install pandas</code></td></tr>
+</table>
+<h2>What "Melody Analysis" Actually Means</h2>
+<p>A melody in MIDI is the track with the most consecutive single notes (not chords, not drums). Each note has:</p>
+<ul>
+  <li><strong>Pitch</strong>: a number 0-127 (middle C = 60, each step up = one semitone)</li>
+  <li><strong>Duration</strong>: in quarter notes (1.0 = one beat, 0.5 = an eighth note)</li>
+  <li><strong>Start time</strong>: when the note begins (in quarter notes from start of file)</li>
+  <li><strong>Velocity</strong>: how loud (0-127)</li>
+</ul>
+<p>A <strong>motif</strong> is a short pattern of 3-4 notes that repeats in the melody. Finding motifs = finding what makes the melody memorable. Your analyzer will identify the top 3 most-repeated motifs.</p>
+<h2>What "Drum Groove" Means</h2>
+<p>Drums in MIDI are on Channel 10. Each drum instrument has a fixed note number. Your tool cares about four:</p>
+<table class="table-grid">
+  <tr><th>MIDI Note</th><th>Drum piece</th><th>Role in the groove</th></tr>
+  <tr><td><code>36</code></td><td>Kick drum</td><td>The heartbeat — usually on beats 1 and 3</td></tr>
+  <tr><td><code>38</code></td><td>Snare drum</td><td>The backbeat — usually on beats 2 and 4</td></tr>
+  <tr><td><code>42</code></td><td>Hi-hat closed</td><td>The pulse — keeps eighth or sixteenth note rhythm</td></tr>
+  <tr><td><code>46</code></td><td>Hi-hat open</td><td>Accent — adds space and feel at phrase endings</td></tr>
+</table>
+<div class="callout green">
+  <div class="callout-label">The Vision In Code Terms</div>
+  <p>The app reads a MIDI file from the database → extracts the 4-note motifs from the melody track → extracts the 2-bar groove from the drum track → generates a new MIDI file that combines those patterns in a fresh order with slight variation. That is the full product, technically described.</p>
+</div>
+</div>`,
+video:{title:'Python music21 MIDI tutorial',search:'music21 Python MIDI analysis tutorial beginners'},
+drill:{type:'copy-prompt',title:'Write Your Product Spec',
+  instr:'Open a Claude Code session inside your beat-generator folder. Copy and paste this prompt to generate your official product specification document. Save the output as "PRODUCT_SPEC.md" in your project folder.',
+  prompt:`You are a technical product manager. Help me write a complete product specification for my music tool.
+
+My vision: A desktop app that analyzes the melody and drum patterns of hit songs stored in a local MIDI database, then generates new MIDI files that combine those patterns.
+
+Write a specification document in Markdown format covering:
+
+1. Product Name and one-line description
+2. Target user (who is this for, what do they already know)
+3. Core features — exactly 5, each with: feature name, what it does, why it matters
+4. Technical stack: list every library (music21, midiutil, tkinter, pandas) with one sentence on why we use it
+5. Input: what the user provides or selects
+6. Output: exactly what the MIDI file contains (tracks, channels, note types)
+7. The database: what CSV columns we store per song, what MIDI files we reference
+8. Desktop window layout: describe the three panels and every button/element
+9. What we are NOT building in version 1 (scope limits — be specific)
+10. Success criteria: how do we know version 1 is done?
+
+Be specific and technical. This document will direct all future AI coding sessions.
+Save this as PRODUCT_SPEC.md`},
+quiz:[
+  {q:'What does a MIDI file contain?',opts:['Compressed audio like an MP3','Sheet music as a scanned image','Note instructions — pitch, duration, start time, velocity — but no actual sound','A recording of the original song'],a:2,ex:'MIDI contains instructions, not sound. Pitch 60 = middle C, duration 1.0 = one beat. Your music software reads these instructions and plays them with whatever sounds you choose.'},
+  {q:'Which Python library reads and analyzes existing MIDI files?',opts:['pandas','midiutil','tkinter','music21'],a:3,ex:'music21 is the industry-standard Python library for music analysis. It can read a MIDI file and give you Note objects with pitch, duration, and timing — like a musician reading sheet music.'},
+  {q:'In MIDI, what does "velocity" mean?',opts:['How fast the note plays','How loud the note is (0-127)','The pitch of the note','The channel the note is on'],a:1,ex:'Velocity controls loudness. 0 = silent, 127 = maximum volume. Real drummers hit harder on the kick (high velocity) and lighter on the hi-hat (lower velocity). Your generator can vary this for a more human feel.'},
+  {q:'What MIDI note number is the kick drum?',opts:['38','42','36','46'],a:2,ex:'Note 36 = Kick. Note 38 = Snare. Note 42 = Hi-hat closed. Note 46 = Hi-hat open. These are General MIDI standard numbers — they are the same in every MIDI file on earth.'},
+],pass:3},
+
+{id:8,icon:'🗄️',title:'The Song Database',sub:'Lakh MIDI Dataset, CSV structure, and filtering',xp:200,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 8</div>
+  <h1>The Song Database</h1>
+  <p>Your tool needs songs to analyze. Here is where they come from and how to organize them.</p>
+</div>
+<div class="learn-body">
+<h2>What Is a Database (In Simple Terms)?</h2>
+<p>A database is just organized information. For your project, the database is a CSV file — a spreadsheet that any app (Excel, Google Sheets, Python) can read. Each row = one song. Each column = one piece of information about that song.</p>
+<h2>Where the Songs Come From</h2>
+<div class="callout purple">
+  <div class="callout-label">The Lakh MIDI Dataset</div>
+  <p>A free collection of 170,000 MIDI files with metadata (artist, title, genre). Researchers at Columbia University compiled it. You can download it free from the academic web — search "Lakh MIDI Dataset download". It is the perfect starting database because it is massive, free, and already in MIDI format.</p>
+</div>
+<p>Later versions of your tool can pull from Spotify charts (Spotify has a free Web API that returns top tracks). But Spotify does not provide MIDI — you would still need to match Spotify track names to MIDI files from a dataset like Lakh. Start with Lakh first.</p>
+<h2>Your Song Database CSV Structure</h2>
+<table class="table-grid">
+  <tr><th>Column</th><th>Type</th><th>What it stores</th></tr>
+  <tr><td><code>file_path</code></td><td>text</td><td>Full path to the MIDI file on disk</td></tr>
+  <tr><td><code>filename</code></td><td>text</td><td>Just the file name (for display)</td></tr>
+  <tr><td><code>bpm</code></td><td>number</td><td>Estimated tempo in beats per minute</td></tr>
+  <tr><td><code>time_signature</code></td><td>text</td><td>"4/4", "3/4", etc.</td></tr>
+  <tr><td><code>has_drums</code></td><td>boolean</td><td>True if MIDI channel 10 has notes</td></tr>
+  <tr><td><code>track_count</code></td><td>number</td><td>How many instrument tracks</td></tr>
+  <tr><td><code>duration_sec</code></td><td>number</td><td>Length in seconds</td></tr>
+  <tr><td><code>note_count</code></td><td>number</td><td>Total notes across all tracks</td></tr>
+</table>
+<h2>Filtering the Database</h2>
+<p>170,000 files is too many — many will be junk (too short, no drums, weird time signatures). You filter down to usable songs:</p>
+<ul>
+  <li>Has drums (has_drums = True)</li>
+  <li>Between 70-140 BPM (covers hip hop, pop, dance, R&B)</li>
+  <li>At least 2 instrument tracks (melody + drums minimum)</li>
+  <li>Duration between 30 and 600 seconds</li>
+</ul>
+<p>This typically reduces 170,000 files to 20,000-40,000 high-quality songs — still enormous.</p>
+<div class="callout green">
+  <div class="callout-label">Start Small</div>
+  <p>For your first build, do not process all 170,000 files. Download 500-1000 MIDI files from the dataset, run the scanner on those, and test your tool with a small database first. Scale up once everything works.</p>
+</div>
+</div>`,
+video:{title:'Lakh MIDI Dataset overview and download',search:'Lakh MIDI dataset download Python music analysis tutorial'},
+drill:{type:'copy-prompt',title:'Build the Database Scanner',
+  instr:'In your Claude Code session (inside the beat-generator folder), paste this prompt to build the database scanning scripts.',
+  prompt:`You are a Python developer. I am building a music beat generator tool. I need two Python scripts for my song database.
+
+Script 1: scan_midi_folder.py
+- Accepts a folder path as a command-line argument (sys.argv[1])
+- Recursively scans that folder for all .mid and .midi files
+- For each file, extracts using music21:
+  - file_path (absolute path)
+  - filename (just the filename)
+  - bpm (use music21's metronome mark, default to 120 if not found)
+  - time_signature (e.g. "4/4", default "4/4" if not found)
+  - has_drums (True if any track has notes on MIDI channel 10)
+  - track_count (number of Part objects in the score)
+  - duration_sec (total duration in seconds)
+  - note_count (total Note objects across all tracks)
+- Saves results to song_database.csv
+- Prints progress every 50 files: "Scanned X / Y files"
+- Wraps each file in try/except so one bad file does not crash the whole scan
+
+Script 2: filter_database.py
+- Reads song_database.csv
+- Keeps only rows where:
+  - has_drums is True
+  - bpm is between 70 and 140
+  - track_count >= 2
+  - duration_sec is between 30 and 600
+- Saves result to song_database_filtered.csv
+- Prints: "Kept X songs from Y total (Z% usable)"
+
+Use music21 and pandas throughout. Add a clear comment above every function. Both scripts should work by running: python scan_midi_folder.py /path/to/midi/folder`},
+quiz:[
+  {q:'What is the Lakh MIDI Dataset?',opts:['A Spotify playlist of popular songs','A free collection of 170,000 MIDI files for research and analysis','A Python library for music','A paid music database service'],a:1,ex:'The Lakh MIDI Dataset is a free academic resource with 170,000 MIDI files. It is the foundation of your song database and is widely used in music AI research.'},
+  {q:'Why do you filter the database down from 170,000 songs?',opts:['Filtering is required by the library','Many files are too short, have no drums, or have unusable time signatures','The tool can only handle 100 songs','Lakh MIDI only has 100 good songs'],a:1,ex:'A large dataset has noise — files that are too short, instrumental only, or in unusual formats. Filtering to songs with drums, good BPM, and multiple tracks gives you a high-quality working set.'},
+  {q:'What file format stores your song database?',opts:['.xlsx (Excel)','A SQL database','A .csv (comma-separated values) file','A .json file'],a:2,ex:'CSV is simple, universally readable (Excel, Google Sheets, Python pandas), and does not require any database server. Perfect for this project.'},
+],pass:2},
+
+{id:9,icon:'🎼',title:'Melody Analysis',sub:'Extracting patterns from MIDI with music21',xp:200,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 9</div>
+  <h1>Melody Analysis</h1>
+  <p>How to read a MIDI file and extract what makes its melody work.</p>
+</div>
+<div class="learn-body">
+<h2>How music21 Reads a MIDI File</h2>
+<p>When you give music21 a MIDI file path, it returns a <strong>Score</strong> object. Inside the Score are <strong>Part</strong> objects (one per instrument track). Inside each Part are <strong>Note</strong> objects with these properties:</p>
+<table class="table-grid">
+  <tr><th>Property</th><th>What it is</th><th>Example</th></tr>
+  <tr><td><code>pitch.midi</code></td><td>MIDI note number (0-127)</td><td>60 = middle C</td></tr>
+  <tr><td><code>duration.quarterLength</code></td><td>Length in quarter notes</td><td>1.0 = one beat</td></tr>
+  <tr><td><code>offset</code></td><td>Start time in quarter notes</td><td>4.0 = beat 5 (start of measure 2 in 4/4)</td></tr>
+  <tr><td><code>volume.velocity</code></td><td>Loudness (0-127)</td><td>90 = moderately loud</td></tr>
+</table>
+<h2>Finding the Melody Track</h2>
+<p>A song has multiple tracks. You identify the melody as the track with the highest number of Note objects that are not on channel 10 (drums). Simple and reliable.</p>
+<h2>What a Motif Is</h2>
+<p>A <strong>motif</strong> is a short sequence of notes that repeats. Think of the first four notes of Beethoven's Fifth Symphony — that is a motif. Your analyzer finds 4-note sequences that appear more than once in the melody. The more a sequence repeats, the more it defines the song's identity.</p>
+<div class="callout purple">
+  <div class="callout-label">Why Motifs Matter for Generation</div>
+  <p>When your tool generates a new melody, it picks from the extracted motifs and combines them in a new order. This guarantees the output sounds related to the source material — because it uses the same building blocks, just rearranged. That is what makes it feel like a "hit song" pattern rather than random notes.</p>
+</div>
+<h2>Generating a New Melody</h2>
+<p>Generation is simpler than it sounds. You have a list of 4-note motifs. You pick one, place it, pick another (possibly the same or different), place it after, repeat until you have 16 bars. Add slight pitch transposition (shift the whole motif up or down by a random number of semitones within the key) for variety.</p>
+<div class="callout green">
+  <div class="callout-label">Real Example</div>
+  <p>If the top motif from a Drake song is [60, 62, 64, 62] (C, D, E, D), your generator might output [60,62,64,62] → [62,64,65,64] (transposed up 2 semitones) → [60,62,64,62] → [58,60,62,60] (transposed down). Same shape, fresh arrangement.</p>
+</div>
+</div>`,
+video:{title:'music21 Python tutorial for beginners',search:'music21 Python MIDI analysis tutorial beginners note extraction'},
+drill:{type:'copy-prompt',title:'Build the Melody Analyzer',
+  instr:'In your Claude Code session (beat-generator folder), paste this prompt to build melody_analyzer.py.',
+  prompt:`You are a Python developer specializing in music analysis. Build me a module called melody_analyzer.py.
+
+The module must contain these functions:
+
+1. load_score(midi_path: str) -> music21.stream.Score
+   - Loads a MIDI file using music21.converter.parse
+   - Returns the Score object
+   - Raises a clear error if the file is not found or cannot be parsed
+
+2. find_melody_track(score) -> music21.stream.Part
+   - Iterates all Parts in the score
+   - Returns the Part that has the most Note objects (excluding drum channel 10)
+   - Returns None if no melody track found
+
+3. extract_notes(part) -> list[dict]
+   - Extracts all Notes from the Part
+   - Returns a list of dicts: {pitch: int, duration: float, start: float, velocity: int}
+   - Skips rests and chords (just take the top note of any chord)
+
+4. find_motifs(notes: list, motif_length=4) -> list[tuple]
+   - Finds all sequences of motif_length consecutive pitches
+   - Counts how many times each sequence appears
+   - Returns top 3 as a list of (sequence_tuple, count) sorted by count descending
+
+5. generate_melody(motifs: list, bars=16, beats_per_bar=4) -> list[dict]
+   - Takes the motif list from find_motifs
+   - Generates a melody of (bars * beats_per_bar) beats
+   - Combines motifs in sequence, adding random pitch transposition of ±2 semitones per motif
+   - Returns as list of {pitch: int, duration: float, start: float}
+
+6. analyze(midi_path: str) -> dict
+   - Calls all the above in order
+   - Returns {notes: list, motifs: list, generated_melody: list}
+
+At the bottom, add a main() function that:
+- Accepts a MIDI file path as sys.argv[1]
+- Runs analyze() on it
+- Prints: number of notes found, top 3 motifs with their counts, first 8 notes of generated melody
+
+Add a docstring and a comment above every function. Use music21 throughout.`},
+quiz:[
+  {q:'How does music21 represent a single note?',opts:['As a raw number','As a Note object with pitch, duration, offset, and velocity properties','As an audio sample','As a text string like "C4"'],a:1,ex:'music21 gives you Note objects with structured properties: pitch.midi (MIDI number), duration.quarterLength (in beats), offset (start time), volume.velocity (loudness). This is much easier to work with than raw MIDI bytes.'},
+  {q:'How do you identify the melody track in a multi-track MIDI file?',opts:['It is always track 1','It is the loudest track','It is the Part with the most Note objects that is not on drum channel 10','You ask the user to select it'],a:2,ex:'The melody track is the busiest non-drum track. Count notes per Part, exclude channel 10 (drums), and the one with the most notes is almost always the melody. Simple and reliable.'},
+  {q:'What is a "motif" in music analysis?',opts:['The tempo of a song','A short note sequence (3-4 notes) that repeats throughout the melody','The entire melody from start to finish','A type of drum pattern'],a:1,ex:'A motif is the repeating building block of a melody. Finding motifs means finding what makes the melody memorable. Your generator will recombine these motifs to create new melodies that sound related to the original.'},
+],pass:2},
+
+{id:10,icon:'🥁',title:'Drum Patterns and Grooves',sub:'Channel 10, MIDI drum map, and groove generation',xp:200,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 10</div>
+  <h1>Drum Patterns and Grooves</h1>
+  <p>The drum groove is the backbone of the beat. Here is how to extract it and generate new ones.</p>
+</div>
+<div class="learn-body">
+<h2>MIDI Drums — How They Work</h2>
+<p>In every MIDI file on earth, drums are on <strong>Channel 10</strong>. This is a universal standard. Instead of pitch, the note number tells you which drum is hit:</p>
+<table class="table-grid">
+  <tr><th>MIDI Note</th><th>Drum</th><th>Typical role</th></tr>
+  <tr><td><code>36</code></td><td>Kick (Bass Drum)</td><td>Beats 1 and 3 — the heartbeat</td></tr>
+  <tr><td><code>38</code></td><td>Snare</td><td>Beats 2 and 4 — the backbeat</td></tr>
+  <tr><td><code>42</code></td><td>Hi-Hat Closed</td><td>Every eighth note — the pulse</td></tr>
+  <tr><td><code>46</code></td><td>Hi-Hat Open</td><td>Phrase endings — adds breathing room</td></tr>
+</table>
+<h2>What Is a "Tight Groove"?</h2>
+<p>A tight groove means every note lands exactly on the grid. In 4/4 time at 90 BPM, the eighth note grid is 0.5 beats apart. Kick lands at beat 1.0, hi-hat at 1.0 and 1.5 and 2.0... When notes hit precisely on these positions, the groove feels "tight" and professional. When they drift (even by 10ms), it feels loose or sloppy.</p>
+<p>Your analyzer will <strong>quantize</strong> the drum notes it extracts — snap them to the nearest sixteenth-note grid position. This cleans up any timing imperfections in the source MIDI before using them as a template.</p>
+<h2>Extracting the Core Loop</h2>
+<p>Most songs have a 2-bar drum loop that repeats throughout. Your extractor:</p>
+<ul>
+  <li>Reads all notes from channel 10 of the MIDI file</li>
+  <li>Takes only the first 8 beats (2 bars in 4/4)</li>
+  <li>Quantizes each note's start time to the nearest 0.25 beats</li>
+  <li>Stores each note as: {instrument, beat_position, velocity}</li>
+</ul>
+<h2>Generating a New Pattern</h2>
+<p>Generation applies two types of variation to the extracted loop:</p>
+<ul>
+  <li><strong>Velocity variation</strong>: randomly adjust each hit's volume by ±10-15%. Makes it sound human, not robotic.</li>
+  <li><strong>Ghost note addition</strong>: occasionally add a very quiet snare hit (velocity 30-40) between beats. This is the signature of hip-hop and R&B grooves.</li>
+</ul>
+<div class="callout">
+  <div class="callout-label">The Musical Result</div>
+  <p>The generated pattern keeps the essential skeleton of the original groove (kick on 1 and 3, snare on 2 and 4, hi-hat subdivisions) but sounds fresh due to velocity variation and the occasional ghost note. It is recognizably related to the source, but not identical.</p>
+</div>
+</div>`,
+video:{title:'MIDI drums explained — channel 10 and drum maps',search:'MIDI drums channel 10 drum map explained tutorial beginners'},
+drill:{type:'copy-prompt',title:'Build the Drum Analyzer',
+  instr:'In your Claude Code session, paste this prompt to build drum_analyzer.py.',
+  prompt:`You are a Python developer specializing in music analysis. Build me a module called drum_analyzer.py.
+
+The module must contain these functions:
+
+1. extract_drum_events(midi_path: str) -> list[dict]
+   - Loads the MIDI file using music21
+   - Finds all notes on channel 10 (or any part named "Drums" or "Percussion")
+   - For each drum note, returns a dict:
+     {note_num: int, instrument: str, beat_position: float, velocity: int}
+   - Maps note numbers to instrument names:
+     36="Kick", 38="Snare", 42="HiHat_Closed", 46="HiHat_Open"
+     Any other note: "Other_" + str(note_num)
+   - Quantizes beat_position to nearest 0.25 (sixteenth note grid)
+
+2. extract_core_loop(events: list, loop_bars=2, beats_per_bar=4) -> list[dict]
+   - Takes the first (loop_bars * beats_per_bar) beats worth of events
+   - Returns those events as the "core loop"
+
+3. generate_drum_pattern(loop: list, variation=0.12) -> list[dict]
+   - Takes the core loop
+   - For each event, randomly varies velocity by ±(variation * 127)
+   - Clamps velocity between 20 and 127
+   - With 15% probability, adds a ghost snare (velocity 30-40) at the midpoint between each snare hit
+   - Returns the new pattern as a list of dicts
+
+4. export_drum_midi(pattern: list, bpm: float, output_path: str) -> None
+   - Uses midiutil.MidiFile to create a single-track MIDI file
+   - Sets tempo to bpm
+   - Writes all drum events to track 0, channel 9 (midiutil uses 0-indexed channels)
+   - Saves to output_path
+
+5. analyze_drums(midi_path: str) -> dict
+   - Calls all functions above in order
+   - Returns {events: list, loop: list, generated: list}
+
+Add a main() that accepts a MIDI path as sys.argv[1], runs analyze_drums, and prints:
+- Total drum events found
+- Core loop (first 8 events)
+- "Generated pattern saved to: generated_drums.mid"
+
+Add docstrings and comments. Use music21 for reading, midiutil for writing.`},
+quiz:[
+  {q:'On which MIDI channel are drums always found?',opts:['Channel 1','Channel 5','Channel 10','Channel 16'],a:2,ex:'Channel 10 is the universal General MIDI standard for drums. Every MIDI file uses this. Your analyzer knows exactly where to look without any guessing.'},
+  {q:'What does "quantizing" a drum pattern mean?',opts:['Making it louder','Adding reverb effect','Snapping notes to an exact grid, removing timing imperfections','Changing the pitch of the drums'],a:2,ex:'Quantizing snaps each note\'s start time to the nearest grid position (e.g., nearest sixteenth note = 0.25 beats). This makes the groove tight and usable as a template for generation.'},
+  {q:'What does a "ghost note" add to a drum pattern?',opts:['A very loud hit for emphasis','A very quiet snare hit between beats that adds human feel and texture','A kick drum on every beat','A pause in the pattern'],a:1,ex:'Ghost notes are quiet snare hits (velocity 30-40) between the main beats. They are a signature of hip-hop and R&B production. Adding them to generated patterns makes them sound less mechanical.'},
+],pass:2},
+
+{id:11,icon:'🖥️',title:'The Desktop Tool',sub:'Build the full Beat Generator app with Tkinter',xp:250,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 11</div>
+  <h1>The Desktop Tool</h1>
+  <p>You have the analyzers built. Now connect everything in a real desktop application.</p>
+</div>
+<div class="learn-body">
+<h2>What Is Tkinter?</h2>
+<p>Tkinter is Python's built-in GUI toolkit. It comes installed with Python — no pip install needed. It creates real desktop windows with buttons, dropdown menus, lists, and text areas. It is not the prettiest GUI framework, but it is the easiest to get working and it ships with every Python installation.</p>
+<div class="callout purple">
+  <div class="callout-label">Why Tkinter (Not a Fancier Framework)</div>
+  <p>PyQt5 and wxPython look nicer but require installation and configuration. Tkinter works immediately on any computer that has Python. For version 1, ship something that works. Make it beautiful in version 2.</p>
+</div>
+<h2>The Three-Panel Layout</h2>
+<table class="table-grid">
+  <tr><th>Panel</th><th>What it shows</th><th>Key elements</th></tr>
+  <tr><td>Left — Song Browser</td><td>Songs from your filtered CSV database</td><td>Listbox of songs, BPM filter dropdown, Refresh button</td></tr>
+  <tr><td>Center — Analyzer</td><td>Analysis controls and results text</td><td>Analyze Melody button, Analyze Drums button, results text area</td></tr>
+  <tr><td>Right — Generator</td><td>Generation controls and export</td><td>BPM input, Generate Beat button, Export MIDI button, status label</td></tr>
+</table>
+<h2>How the App Connects Your Modules</h2>
+<div class="flow" style="flex-direction:column;gap:10px;align-items:flex-start">
+  <div style="display:flex;align-items:center;gap:10px"><div class="flow-box">User picks a song from the listbox</div></div>
+  <div style="display:flex;align-items:center;gap:10px;padding-left:20px"><span style="color:var(--muted)">↓</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="flow-box">Click "Analyze Melody" → runs melody_analyzer.analyze()</div></div>
+  <div style="display:flex;align-items:center;gap:10px;padding-left:20px"><span style="color:var(--muted)">↓</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="flow-box">Click "Analyze Drums" → runs drum_analyzer.analyze_drums()</div></div>
+  <div style="display:flex;align-items:center;gap:10px;padding-left:20px"><span style="color:var(--muted)">↓</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="flow-box">Click "Generate Beat" → combines outputs, creates new MIDI</div></div>
+  <div style="display:flex;align-items:center;gap:10px;padding-left:20px"><span style="color:var(--muted)">↓</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="flow-box">Click "Export MIDI" → saves file dialog → done</div></div>
+</div>
+<div class="callout green">
+  <div class="callout-label">After Version 1 Ships</div>
+  <p>Next steps: replace Tkinter with a web interface (Flask or Electron for a better UI), add Spotify API integration to pull chart data and match to MIDI files, add a waveform preview so users can hear the generated beat before exporting. But ship version 1 first.</p>
+</div>
+</div>`,
+video:{title:'Python Tkinter desktop app tutorial',search:'Python Tkinter desktop app tutorial beginners 2024'},
+drill:{type:'copy-prompt',title:'Build the Desktop App',
+  instr:'This is the biggest prompt of the course. Make sure melody_analyzer.py and drum_analyzer.py are already in your beat-generator folder. Then paste this into Claude Code.',
+  prompt:`You are a Python developer. I have two modules already built in my project:
+- melody_analyzer.py (functions: analyze(midi_path) returns {notes, motifs, generated_melody})
+- drum_analyzer.py (functions: analyze_drums(midi_path) returns {events, loop, generated}, export_drum_midi(pattern, bpm, path))
+- song_database_filtered.csv (columns: file_path, filename, bpm, has_drums, track_count)
+
+Build beat_generator.py — a complete Tkinter desktop application.
+
+Window: title "Beat Generator", size 960x620, background #0A0A0F, resizable.
+
+Layout — three frames side by side:
+
+LEFT FRAME (width 260) — "Song Database":
+- Label: "Song Database" in electric blue (#4F8EF7), bold
+- BPM filter: Label "BPM Range:" + Combobox with options: ["All", "70-90", "90-110", "110-140"]
+- Listbox (dark bg #12121E, white text) showing "filename | BPM" for each song in the CSV
+- Scrollbar attached to listbox
+- Button "Refresh Database" — reloads the CSV and repopulates the listbox
+
+CENTER FRAME (flex) — "Analyze":
+- Label: "Pattern Analyzer" in electric blue, bold
+- Button "Analyze Melody" — runs melody_analyzer.analyze() on the selected song, stores result
+- Button "Analyze Drums" — runs drum_analyzer.analyze_drums() on the selected song, stores result
+- Text widget (dark bg, monospace font, read-only) showing analysis results:
+  When melody analyzed: show motif count and first 3 motifs
+  When drums analyzed: show event count and core loop summary
+- Both buttons disabled until a song is selected in the listbox
+
+RIGHT FRAME (width 220) — "Generate":
+- Label: "Beat Generator" in electric blue, bold
+- Label "Output BPM:" + Entry field (default: "90")
+- Button "Generate Beat" — combines stored melody and drum analysis, creates a combined MIDI using midiutil:
+    Track 0: generated melody (from melody_analyzer.generated_melody)
+    Track 1: generated drums (from drum_analyzer.generated, on channel 9)
+  Saves to a temp file "generated_beat_temp.mid"
+  Button disabled until both melody and drums have been analyzed
+- Button "Export MIDI" — opens filedialog.asksaveasfilename(), copies temp file to chosen location
+- Status Label at bottom — shows last action in green text (success) or red text (error)
+
+Additional requirements:
+- Use threading for analysis operations so the UI does not freeze
+- Show "Analyzing..." in the status label during analysis
+- Wrap all file operations in try/except showing friendly error messages in the status label
+- Add a menu bar: File > Exit
+- Use dark colors throughout: bg #0A0A0F, frame bg #12121E, button bg #4F8EF7, text white
+- The app must run with: python beat_generator.py`},
+quiz:[
+  {q:'What is Tkinter?',opts:['A music analysis library','A MIDI file format','Python\'s built-in GUI toolkit for creating desktop windows and controls','A web framework for Python'],a:2,ex:'Tkinter is built into Python — no installation needed. It creates real desktop windows with buttons, lists, text areas, and file dialogs. Not the fanciest, but the most reliable for version 1.'},
+  {q:'Why use threading in the desktop app?',opts:['To make it run faster','To prevent the UI from freezing while analysis runs in the background','Threading is required by Tkinter','To connect to the internet'],a:1,ex:'Music analysis takes time. Without threading, the window freezes and looks broken while analyzing. Threading runs the analysis in the background while the UI stays responsive.'},
+  {q:'What does the "Generate Beat" button actually do?',opts:['Downloads a beat from the internet','Records audio from the microphone','Combines the analyzed melody and drum patterns and writes them as a new MIDI file','Plays back the selected song'],a:2,ex:'Generate Beat takes the motifs from melody_analyzer and the groove from drum_analyzer, runs the generation functions, and uses midiutil to write a combined MIDI file with a melody track and a drum track.'},
+],pass:2},
+
+{id:12,icon:'🚀',title:'Ship It',sub:'Test, package, and complete your product',xp:300,
+learn:`
+<div class="mod-hero">
+  <div class="ch">Module 12</div>
+  <h1>Ship It</h1>
+  <p>A product that is not in someone else's hands is not a product. Ship version 1.</p>
+</div>
+<div class="learn-body">
+<h2>What "Shipped" Means</h2>
+<p>Version 1 is shipped when: someone else can open your tool, pick a song, click Generate, and receive a MIDI file they can use. That is the bar. It does not need to be beautiful. It does not need Spotify integration. It needs to work end-to-end.</p>
+<h2>How to Test End-to-End</h2>
+<ul>
+  <li>Pick 10 songs from your database with varied BPMs (one at 75, one at 90, one at 120, etc.)</li>
+  <li>Analyze melody on all 10 — note any that crash or produce empty results</li>
+  <li>Analyze drums on all 10 — note any without drum tracks</li>
+  <li>Generate and export 5 MIDI files</li>
+  <li>Load each into GarageBand, Ableton, or FL Studio and listen</li>
+  <li>For each that sounds wrong, open Claude Code and describe specifically what is wrong</li>
+</ul>
+<h2>How to Package It for Others</h2>
+<p>Right now your tool requires Python to be installed. To share it as a clickable .app (Mac) or .exe (Windows), use <strong>PyInstaller</strong>:</p>
+<ul>
+  <li>Install: <code>pip install pyinstaller</code></li>
+  <li>Package: <code>pyinstaller --onefile --windowed beat_generator.py</code></li>
+  <li>The result appears in the <code>dist/</code> folder — a single file anyone can double-click</li>
+</ul>
+<div class="callout orange">
+  <div class="callout-label">Note on music21 + PyInstaller</div>
+  <p>music21 has many dependencies and can be tricky to package. If PyInstaller fails, have Claude Code debug it — paste the exact error. This is a known challenge and there are established fixes. Do not be discouraged.</p>
+</div>
+<h2>What Comes After Version 1</h2>
+<ul>
+  <li><strong>Spotify API integration</strong>: pull current Top 50 charts → match to Lakh MIDI by artist/title → auto-populate database with trending songs</li>
+  <li><strong>Better UI</strong>: Replace Tkinter with a web interface using Flask (Python web server) + React or plain HTML (runs in browser, looks modern)</li>
+  <li><strong>ML-based generation</strong>: Train a small model on your motif database to generate melodies that feel even more natural</li>
+  <li><strong>Key and scale detection</strong>: Ensure generated notes stay in the key of the source song</li>
+</ul>
+<div class="callout green">
+  <div class="callout-label">You Built This</div>
+  <p>A song database scanner. A MIDI melody analyzer. A drum groove extractor. A pattern generator. A desktop application with a GUI. A packaged product that works on any computer. You built all of this without writing a single line of code by hand. That is vibe coding.</p>
+</div>
+</div>`,
+video:{title:'Packaging Python apps with PyInstaller',search:'PyInstaller Python package desktop app Mac Windows tutorial 2024'},
+drill:{type:'checklist',title:'Launch Checklist',
+  instr:'Before you call it shipped, go through every item. No skipping.',
+  items:[
+    {id:'db',label:'song_database_filtered.csv has at least 50 songs'},
+    {id:'mel',label:'melody_analyzer.py runs without errors on at least 5 different songs'},
+    {id:'drum',label:'drum_analyzer.py runs without errors on at least 5 different songs with drum tracks'},
+    {id:'gen',label:'Generated at least 3 MIDI files using the Generate Beat button'},
+    {id:'listen',label:'Loaded at least one generated MIDI into music software and listened to it'},
+    {id:'export',label:'Export MIDI button saves to the correct location and the file opens correctly'},
+    {id:'pyinstaller',label:'Ran PyInstaller and have a distributable file in the dist/ folder (or noted the error for Claude Code to fix)'},
+    {id:'share',label:'Sent the packaged file to at least one person and confirmed it opens on their computer'},
+  ]},
+quiz:[
+  {q:'What is the correct order for building with AI?',opts:['Build first, then specify what you needed','Specify → Build → Iterate → Test, in that order','Test first to see what breaks, then build to fix it','Just start building without planning'],a:1,ex:'Specifying first (product spec, database design, function signatures) prevents misaligned output and wasted iteration. Build according to the spec. Iterate on what does not match. Test end-to-end.'},
+  {q:'A friend says "I tried AI once, got bad output, so it does not work." What is the right response?',opts:['"You are right, AI is unreliable for serious work"','"Try a different AI"','"The first output is always a starting point. The skill is in iteration, not the first prompt."','"AI only works if you know how to code already"'],a:2,ex:'This is the most important mindset correction in the whole course. Bad first output is normal. The skill is identifying exactly what is wrong and sending a targeted correction. Nobody gets great results on the first try.'},
+  {q:'What is the most important thing to do at the start of every Claude Code session on a real project?',opts:['Update all your software first','Clear your terminal history','Load your project context — paste PRODUCT_SPEC.md or your rules so Claude has full context','Type a very long first prompt'],a:2,ex:'Without context, Claude invents plausible-sounding but wrong things about your project. Loading your spec and rules at the start of every session is what separates consistent professional output from random results.'},
+  {q:'You want to add a key detection feature to your beat generator. What is the right first step?',opts:['Delete beat_generator.py and rebuild it with the feature','Ask Claude Code to "add key detection" without any other context','Write a clear spec: what function to add, what it returns, where in the UI it appears, what library handles it — then ask Claude to implement','Download a different tool that already has key detection'],a:2,ex:'Spec first, always. "Add key detection" gives Claude nothing to work with. "Add a function detect_key(midi_path) using music21 that returns the musical key as a string like \'C major\', and display it in the center panel of beat_generator.py after melody analysis" is a buildable instruction.'},
+  {q:'When is a product "shipped"?',opts:['When the code has no errors or warnings','When it has been approved by a professional developer','When someone else can use it and it does what it is supposed to do','When it has 1000 users'],a:2,ex:'Shipped means working in someone else\'s hands. Not perfect. Not beautiful. Working. Version 1 ships when a real person outside your computer can pick a song, generate a beat, and load the MIDI into their music software.'},
+],pass:4},
+
+]; // end MODULES
+
+// ─── PRODUCT TRACKER ──────────────────────────────────────────────────────────
+const TRACKER = [
+  {label:'Product spec written',   unlocksAt:7},
+  {label:'Song database designed', unlocksAt:8},
+  {label:'Melody analyzer built',  unlocksAt:9},
+  {label:'Drum analyzer built',    unlocksAt:10},
+  {label:'Desktop app assembled',  unlocksAt:11},
+  {label:'Product shipped',        unlocksAt:12},
+];
+
+// ─── XP THRESHOLDS ────────────────────────────────────────────────────────────
+function xpForLevel(l){ return [0,200,500,900,1400,2050][l]||9999; }
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function isUnlocked(id){ return id===1 || S.completed.includes(id-1); }
+function isCompleted(id){ return S.completed.includes(id); }
+function curMod(){ return MODULES.find(m=>m.id===S.mod); }
+function qs(sel){ return document.querySelector(sel); }
+function el(tag,cls,html){ const e=document.createElement(tag); if(cls)e.className=cls; if(html)e.innerHTML=html; return e; }
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  renderHeader();
+  renderSidebar();
+  renderTabs();
+  renderContent();
+}
+
+function renderHeader(){
+  const xp = S.xp;
+  const cur = lv(xp);
+  const next = LEVELS[LEVELS.indexOf(cur)+1];
+  const pct = next ? Math.round((xp - cur.min)/(next.min - cur.min)*100) : 100;
+  qs('#xp-fill').style.width = pct+'%';
+  qs('#lv-label').textContent = cur.badge+' — '+cur.label;
+  qs('#xp-label').textContent = xp+' / '+(next?next.min:2050)+' XP';
+  qs('#lv-badge').textContent = cur.badge;
+}
+
+function renderSidebar(){
+  const sb = qs('#sb');
+  sb.innerHTML = '';
+
+  const sect = el('div','sb-sect','Modules');
+  sb.appendChild(sect);
+
+  MODULES.forEach(m=>{
+    const locked = !isUnlocked(m.id);
+    const done   = isCompleted(m.id);
+    const active = S.mod===m.id;
+    const div = el('div',`mod-item${active?' active':''}${done?' completed':''}${locked?' locked':''}`);
+    div.innerHTML = `
+      <div class="mod-icon">${m.icon}</div>
+      <div class="mod-info">
+        <div class="mod-title">${m.id}. ${m.title}</div>
+        <div class="mod-sub">${m.sub}</div>
+      </div>
+      <div class="mod-check">${done?'✅':locked?'🔒':''}</div>`;
+    if(!locked) div.addEventListener('click',()=>{ S.mod=m.id; S.tab='learn'; save(); render(); });
+    sb.appendChild(div);
+  });
+
+  // tracker
+  const tr = el('div','','');
+  tr.id='tracker';
+  tr.innerHTML='<h4>Your Product</h4>';
+  TRACKER.forEach(t=>{
+    const done = S.completed.includes(t.unlocksAt);
+    const div=el('div',`tr-item${done?' done':''}`);
+    div.innerHTML=`<div class="tr-dot"></div><span>${t.label}</span>`;
+    tr.appendChild(div);
+  });
+  sb.appendChild(tr);
+}
+
+function renderTabs(){
+  const m = curMod();
+  const tabs = qs('#tabs');
+  tabs.innerHTML='';
+  ['learn','drill','quiz'].forEach(tab=>{
+    const active = S.tab===tab;
+    const locked = tab==='quiz' && !S.drillDone[m.id];
+    const label = {learn:'📖 Learn', drill:'🛠 Drill', quiz:'✅ Quiz'}[tab];
+    const d=el('div',`tab${active?' active':''}${locked?' locked-tab':''}`);
+    d.textContent=label;
+    if(!locked) d.addEventListener('click',()=>{
+      if(tab==='quiz' && S.tab!=='quiz'){
+        S.quizState={q:0,answers:[],done:false};
+      }
+      S.tab=tab; save(); renderTabs(); renderContent();
+    });
+    tabs.appendChild(d);
+  });
+}
+
+function renderContent(){
+  const m = curMod();
+  const c = qs('#content');
+  if(!isUnlocked(m.id)){
+    c.innerHTML=`<div class="locked-msg"><div class="lock">🔒</div><p>Complete the previous module to unlock this one.</p></div>`;
+    return;
+  }
+  if(S.tab==='learn') renderLearn(m,c);
+  else if(S.tab==='drill') renderDrill(m,c);
+  else renderQuiz(m,c);
+}
+
+function renderLearn(m,c){
+  const done = isCompleted(m.id);
+  c.innerHTML=`
+    ${done?`<div class="complete-banner"><div class="icon">🎉</div><div><h3>Module Complete!</h3><p>You earned <strong>${m.xp} XP</strong> for this module.</p></div></div>`:''}
+    <div class="learn-body">${m.learn}</div>
+    <div class="vid-box">
+      <div class="vid-icon">▶️</div>
+      <div><div class="vid-label">Video Guide</div>
+      <div class="vid-title">${m.video.title}</div>
+      <div class="vid-search">Search YouTube: <span>"${m.video.search}"</span></div></div>
+    </div>
+    <div class="row-btns" style="margin-top:24px">
+      <button class="btn btn-primary" onclick="goTab('drill')">Go to Drill →</button>
+    </div>`;
+}
+
+function renderDrill(m,c){
+  const done = S.drillDone[m.id];
+  const d = m.drill;
+  let html = `<div class="drill-wrap">
+    ${done?'<div class="callout green" style="margin-bottom:20px"><div class="callout-label">Drill Complete</div><p>You have completed this drill. You can retake it anytime.</p></div>':''}
+    <div class="drill-title">${d.title}</div>
+    <div class="drill-instr">${d.instr}</div>`;
+
+  if(d.type==='text'){
+    const saved = S.drillText[m.id]||'';
+    html+=`<textarea class="drill-textarea" id="drill-ta" placeholder="${d.placeholder}">${saved}</textarea>
+      <div class="row-btns">
+        <button class="btn btn-primary" onclick="saveDrillText(${m.id})">Save My Answer</button>
+        ${done?`<button class="btn btn-ghost" onclick="goTab('quiz')">Continue to Quiz →</button>`:''}
+      </div>`;
+  } else if(d.type==='copy-prompt'){
+    html+=`<div class="prompt-box">
+        <div class="prompt-label">Claude Prompt — Copy and use this</div>
+        <pre id="prompt-text">${escHtml(d.prompt)}</pre>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-copy" id="copy-btn" onclick="copyPrompt(${m.id})">📋 Copy to Clipboard</button>
+      </div>
+      <div class="drill-confirm">
+        <input type="checkbox" id="drill-chk" ${done?'checked':''} onchange="confirmDrill(${m.id})">
+        <label for="drill-chk">I used this prompt in Claude / Claude Code and read the output</label>
+      </div>
+      ${done?`<div class="row-btns"><button class="btn btn-ghost" onclick="goTab('quiz')">Continue to Quiz →</button></div>`:''}`;
+  } else if(d.type==='checklist'){
+    const checked = S.drillText[m.id]||{};
+    html+=`<div>`;
+    d.items.forEach(item=>{
+      html+=`<div class="checklist-item${checked[item.id]?' done':''}">
+        <input type="checkbox" id="ck-${item.id}" ${checked[item.id]?'checked':''} onchange="toggleCheck(${m.id},'${item.id}')">
+        <label for="ck-${item.id}">${item.label}</label>
+      </div>`;
+    });
+    html+=`</div>
+    ${done?`<div class="row-btns" style="margin-top:20px"><button class="btn btn-ghost" onclick="goTab('quiz')">Continue to Quiz →</button></div>`:''}`;
+  }
+
+  html+=`</div>`;
+  c.innerHTML=html;
+}
+
+function renderQuiz(m,c){
+  const done = isCompleted(m.id);
+  const qs_ = m.quiz;
+  const st  = S.quizState;
+
+  if(!S.drillDone[m.id]){
+    c.innerHTML=`<div class="locked-msg"><div class="lock">🛠</div><p>Complete the Drill tab first to unlock the quiz.</p></div>`;
+    return;
+  }
+
+  if(st.done || done){
+    const correct = st.answers.filter((a,i)=>a===qs_[i].a).length;
+    const passed  = correct >= m.pass;
+    const alreadyDone = isCompleted(m.id);
+    c.innerHTML=`
+      <div class="quiz-wrap">
+        ${alreadyDone?'<div class="complete-banner"><div class="icon">✅</div><div><h3>Already Complete!</h3><p>You passed this quiz.</p></div></div>':''}
+        <div class="quiz-result ${passed||alreadyDone?'pass':'fail'}">
+          <h2>${passed||alreadyDone?'Passed! 🎉':'Not Quite'}</h2>
+          <div class="score-big">${alreadyDone?qs_.length:correct}/${qs_.length}</div>
+          <p>${passed||alreadyDone?'You have mastered this module.':'You need '+m.pass+'/'+qs_.length+' correct. Review the Learn tab and try again.'}</p>
+          ${passed&&!alreadyDone?`<button class="btn btn-green" onclick="completeModule(${m.id})">Claim ${m.xp} XP & Unlock Next →</button>`:''}
+          ${alreadyDone&&m.id<12?`<button class="btn btn-primary" onclick="goNext(${m.id})">Next Module →</button>`:''}
+          ${!passed&&!alreadyDone?`<button class="btn btn-ghost" onclick="retryQuiz()">Try Again</button>`:''}
+          ${m.id===12&&alreadyDone?`<div style="margin-top:16px;font-size:24px">🎹 You built Beat Generator. You are a vibe coder.</div>`:''}
+        </div>
+      </div>`;
+    return;
+  }
+
+  const qi = st.q;
+  const q  = qs_[qi];
+  const answered = st.answers[qi] !== undefined;
+  const userAns  = st.answers[qi];
+
+  const dots = qs_.map((_,i)=>{
+    let cls='quiz-dot';
+    if(i<qi) cls+=' '+(st.answers[i]===qs_[i].a?'correct':'wrong');
+    else if(i===qi) cls+=' answered';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const opts = q.opts.map((o,i)=>{
+    let cls='q-opt';
+    if(answered){
+      if(i===q.a) cls+=' correct';
+      else if(i===userAns&&userAns!==q.a) cls+=' wrong';
+    }
+    return `<button class="${cls}" ${answered?'disabled':''} onclick="answerQ(${m.id},${qi},${i})">${o}</button>`;
+  }).join('');
+
+  c.innerHTML=`<div class="quiz-wrap">
+    <div class="quiz-progress">
+      <div class="quiz-progress-text">Question ${qi+1} of ${qs_.length}</div>
+      <div class="quiz-dots">${dots}</div>
+    </div>
+    <div class="q-card">
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">${opts}</div>
+      ${answered?`<div class="q-explanation">${userAns===q.a?'✅ Correct — ':'❌ Wrong — '}${q.ex}</div>`:''}
+    </div>
+    ${answered?`<div class="row-btns">
+      ${qi<qs_.length-1?`<button class="btn btn-primary" onclick="nextQ()">Next Question →</button>`:`<button class="btn btn-primary" onclick="showResult()">See Results</button>`}
+    </div>`:''}
+  </div>`;
+}
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────────
+function goTab(tab){
+  if(tab==='quiz') S.quizState={q:0,answers:[],done:false};
+  S.tab=tab; save(); renderTabs(); renderContent();
+}
+
+function saveDrillText(id){
+  const ta=document.getElementById('drill-ta');
+  if(!ta||!ta.value.trim()) return;
+  S.drillText[id]=ta.value;
+  S.drillDone[id]=true;
+  save(); renderTabs(); renderContent();
+}
+
+function copyPrompt(id){
+  const m=MODULES.find(m=>m.id===id);
+  const text=m.drill.prompt;
+  const btn=document.getElementById('copy-btn');
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✅ Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='📋 Copy to Clipboard'; btn.classList.remove('copied'); },2500);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent='✅ Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='📋 Copy to Clipboard'; btn.classList.remove('copied'); },2500);
+  });
+}
+
+function confirmDrill(id){
+  const chk=document.getElementById('drill-chk');
+  if(chk&&chk.checked){ S.drillDone[id]=true; save(); renderTabs(); renderContent(); }
+  else { S.drillDone[id]=false; save(); renderTabs(); }
+}
+
+function toggleCheck(id,itemId){
+  if(!S.drillText[id]||typeof S.drillText[id]!=='object') S.drillText[id]={};
+  const chk=document.getElementById('ck-'+itemId);
+  S.drillText[id][itemId]=chk?chk.checked:false;
+  const m=MODULES.find(m=>m.id===id);
+  const allDone=m.drill.items.every(it=>S.drillText[id][it.id]);
+  S.drillDone[id]=allDone;
+  save(); renderTabs(); renderContent();
+}
+
+function answerQ(modId,qi,ans){
+  S.quizState.answers[qi]=ans;
+  save(); renderContent();
+}
+
+function nextQ(){
+  S.quizState.q++;
+  save(); renderContent();
+}
+
+function showResult(){
+  S.quizState.done=true;
+  save(); renderContent();
+}
+
+function retryQuiz(){
+  S.quizState={q:0,answers:[],done:false};
+  save(); renderContent();
+}
+
+function completeModule(id){
+  if(!S.completed.includes(id)){
+    S.completed.push(id);
+    const m=MODULES.find(m=>m.id===id);
+    S.xp+=m.xp;
+  }
+  save();
+  // auto-advance to next module if exists
+  const next=MODULES.find(m=>m.id===id+1);
+  if(next){ S.mod=next.id; S.tab='learn'; }
+  save(); render();
+}
+
+function goNext(id){
+  const next=MODULES.find(m=>m.id===id+1);
+  if(next){ S.mod=next.id; S.tab='learn'; save(); render(); }
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
