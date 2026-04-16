@@ -166,10 +166,107 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .locked-msg{text-align:center;padding:60px 20px;color:var(--muted)}
 .locked-msg .lock{font-size:48px;margin-bottom:16px}
 .locked-msg p{font-size:15px}
+
+/* ── HAMBURGER ─────────────────────────────────────────────────────────────── */
+#hamburger{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0}
+/* ── SIDEBAR OVERLAY (mobile) ──────────────────────────────────────────────── */
+#sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99;backdrop-filter:blur(2px)}
+#sb-overlay.show{display:block}
+
+/* ── TABLE SCROLL WRAPPER ──────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:8px}
+.table-wrap .table-grid{margin:0;min-width:480px}
+
+/* ── MOBILE ────────────────────────────────────────────────────────────────── */
+@media(max-width:720px){
+  /* body can scroll on mobile */
+  body{height:auto;min-height:100vh;overflow:auto}
+  #layout{overflow:visible;min-height:calc(100vh - 56px)}
+
+  /* hamburger visible */
+  #hamburger{display:block}
+
+  /* sidebar becomes slide-in panel */
+  #sb{
+    position:fixed;left:0;top:56px;bottom:0;
+    z-index:100;
+    transform:translateX(-105%);
+    transition:transform .25s cubic-bezier(.4,0,.2,1);
+    width:82vw;max-width:300px;
+    box-shadow:6px 0 32px rgba(0,0,0,.6);
+  }
+  #sb.open{transform:translateX(0)}
+
+  /* main takes full width */
+  #main{width:100%;overflow:visible}
+  #content{overflow:visible;padding:20px 16px;flex:none}
+
+  /* header: shrink xp bar on very small */
+  #hdr{padding:0 12px;gap:10px}
+  #hdr .xp-bar-wrap{max-width:none}
+
+  /* tabs */
+  #tabs{padding:0 8px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+  #tabs::-webkit-scrollbar{display:none}
+  .tab{padding:12px 14px;font-size:12px;white-space:nowrap;flex-shrink:0}
+
+  /* learn hero */
+  .mod-hero h1{font-size:22px}
+  .mod-hero p{font-size:13px}
+  .learn-body{max-width:100%}
+  .learn-body h2{font-size:15px;margin-top:22px}
+  .learn-body p,.learn-body ul li{font-size:13.5px}
+
+  /* compare: stack vertically */
+  .compare{grid-template-columns:1fr}
+
+  /* flow: wrap nicely */
+  .flow{flex-wrap:wrap;gap:6px}
+  .flow-arrow{display:none}
+  .flow-box{flex:1 1 calc(50% - 6px);min-width:120px;font-size:11px;padding:8px 10px}
+
+  /* callout */
+  .callout p{font-size:13px}
+
+  /* buttons: full width stack */
+  .row-btns{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+
+  /* drill */
+  .drill-wrap{max-width:100%}
+  .drill-title{font-size:18px}
+  .prompt-box{padding:12px}
+  .prompt-box pre{font-size:11.5px}
+  .checklist-item label{font-size:13px}
+
+  /* quiz */
+  .quiz-wrap{max-width:100%}
+  .q-card{padding:16px 14px}
+  .q-text{font-size:15px}
+  .q-opt{font-size:13px;padding:12px 13px}
+  .quiz-result{padding:20px 16px}
+  .quiz-result h2{font-size:20px}
+  .score-big{font-size:40px}
+
+  /* complete banner */
+  .complete-banner{flex-direction:column;gap:8px;padding:16px}
+  .complete-banner .icon{font-size:24px}
+
+  /* locked msg */
+  .locked-msg{padding:40px 16px}
+}
+
+@media(max-width:380px){
+  #hdr .level{display:none}
+  .tab{padding:10px 10px;font-size:11px}
+  .mod-hero h1{font-size:19px}
+  .flow-box{flex:1 1 100%}
+}
 </style>
 </head>
 <body>
 <div id="hdr">
+  <button id="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
   <div class="logo">🎵 Beat Academy</div>
   <div class="xp-bar-wrap">
     <div class="xp-label"><span id="lv-label">Level 1 — Beginner</span><span id="xp-label">0 / 200 XP</span></div>
@@ -177,6 +274,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
   <div class="level" id="lv-badge">Lvl 1</div>
 </div>
+<div id="sb-overlay" onclick="closeSidebar()"></div>
 <div id="layout">
   <aside id="sb"></aside>
   <div id="main">
@@ -1126,7 +1224,7 @@ function renderSidebar(){
         <div class="mod-sub">${m.sub}</div>
       </div>
       <div class="mod-check">${done?'✅':locked?'🔒':''}</div>`;
-    if(!locked) div.addEventListener('click',()=>{ S.mod=m.id; S.tab='learn'; save(); render(); });
+    if(!locked) div.addEventListener('click',()=>{ S.mod=m.id; S.tab='learn'; save(); render(); closeSidebar(); });
     sb.appendChild(div);
   });
 
@@ -1173,6 +1271,10 @@ function renderContent(){
   if(S.tab==='learn') renderLearn(m,c);
   else if(S.tab==='drill') renderDrill(m,c);
   else renderQuiz(m,c);
+  wrapTables();
+  // scroll content to top on every tab/module change
+  c.scrollTop=0;
+  window.scrollTo(0,0);
 }
 
 function renderLearn(m,c){
@@ -1389,6 +1491,29 @@ function goNext(id){
 
 function escHtml(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── MOBILE SIDEBAR ───────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sb=document.getElementById('sb');
+  const ov=document.getElementById('sb-overlay');
+  const open=sb.classList.toggle('open');
+  ov.classList.toggle('show',open);
+}
+function closeSidebar(){
+  document.getElementById('sb').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+}
+
+// ─── WRAP TABLES FOR MOBILE SCROLL ────────────────────────────────────────────
+function wrapTables(){
+  document.querySelectorAll('.table-grid').forEach(t=>{
+    if(t.parentElement.classList.contains('table-wrap')) return;
+    const w=document.createElement('div');
+    w.className='table-wrap';
+    t.parentNode.insertBefore(w,t);
+    w.appendChild(t);
+  });
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
